@@ -32,3 +32,16 @@ def connect(beta):
         return source
     else:
     	return -1
+def execute(beta):
+    global table, rowtype
+    command = beta.replace('(', ' ( ').replace(')', ' ) ')
+    command = command.split()
+    if (command[0:2] == ['CREATE', 'TABLE']):
+        table = command[2]
+    for frowtype in command:
+        if (frowtype is '('):
+            rowtype = command[command.index(frowtype)+1:-1]
+    print(rowtype, table)
+    
+print(connect('database.mmsql'))
+execute('CREATE TABLE database (isim:Text soyadi:Text)')
