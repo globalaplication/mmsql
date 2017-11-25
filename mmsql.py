@@ -1,7 +1,29 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
 
-
+def execute(beta):
+    global table, newdatabase, database 
+    command = beta.replace('(', ' ( ').replace(')', ' ) ')
+    command = command.split()
+    if (command[0:2] == ['CREATE', 'TABLE']):
+        table = command[2]
+        string, strnewrows, strnewtype  = ('table:'+table, '', '')
+        for frowtype in command:
+            if (frowtype is '('):
+                newrowtype = command[command.index(frowtype)+1:-1]
+        for fnewrows in newrowtype[0].split(':'):
+            strnewrows = strnewrows + fnewrows + ' '
+        for fnewtypes in newrowtype[1].split(':'):
+            strnewtype = strnewtype + fnewtypes + ' '
+        createnewrows = string+':rows:'+ strnewrows+'\n'
+        createnewtypes = string+':types:'+strnewtype+'\n'+string+':count:0'+'\n'+database
+        newdatabase = createnewrows+createnewtypes 
+        database = newdatabase
+        update()
+def update():
+    db = open(n, 'w')
+    db.write(database)
+    db.close()
 def getTableCount(table):
     table = str(table)
     string = 'table:'+table
@@ -17,9 +39,9 @@ def getRows(table):
 def getTypes(table):
     table = str(table)
     string = 'table:'+table
-    type = [type for type in getTableInfo if type.startswith(string+':type:') is True]
+    type = [type for type in getTableInfo if type.startswith(string+':types:') is True]
     if len(type) is not 0:
-        return str(type[-1][len(string+':type:'):].split())
+        return str(type[-1][len(string+':types:'):].split())
 def connect(beta):
     import os
     global getTableInfo
@@ -33,26 +55,6 @@ def connect(beta):
         return database
     else:
     	return -1
-def execute(beta):
-    global table, rowtype
-    command = beta.replace('(', ' ( ').replace(')', ' ) ')
-    command = command.split()
-    
-    if (command[0:2] == ['CREATE', 'TABLE']):
-        table = command[2]
-    string = 'table:'+table
-    ssetrows = ''
-    for frowtype in command:
-        if (frowtype is '('):
-            rowtype = command[command.index(frowtype)+1:-1]
-    
-    setrows = rowtype[0].split(':')
-    for fsetrows in setrows:
-    	ssetrows = ssetrows + fsetrows + ' '
-    setdatabase =  'table:' + table + ':rows:' + ssetrows + '\n' + database
-
-    print(setdatabase)
-
 
 connect('database.mmsql')
 execute('CREATE TABLE database (isim:Text soyadi:Text)')
