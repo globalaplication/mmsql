@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
+
+
 def getTableCount(table):
     table = str(table)
     string = 'table:'+table
@@ -25,21 +27,36 @@ def connect(beta):
     n = beta
     if os.path.lexists(beta) is True:
         file = open(beta)
-        source = file.read()
+        database = file.read()
         file.close()
-        getTableInfo = source.split('\n')[0:source.split('\n').index('end:info:table')]
-        return source
+        getTableInfo = database.split('\n')[0:database.split('\n').index('end:info:table')]
+        return database
     else:
     	return -1
 def execute(beta):
     global table, rowtype
     command = beta.replace('(', ' ( ').replace(')', ' ) ')
     command = command.split()
+    
     if (command[0:2] == ['CREATE', 'TABLE']):
         table = command[2]
+    string = 'table:'+table
+    ssetrows = ''
     for frowtype in command:
         if (frowtype is '('):
             rowtype = command[command.index(frowtype)+1:-1]
-    print(rowtype, table)
-print(connect('database.mmsql'))
+    
+    setrows = rowtype[0].split(':')
+    for fsetrows in setrows:
+    	ssetrows = ssetrows + fsetrows + ' '
+    setdatabase =  'table:' + table + ':rows:' + ssetrows + '\n' + database
+
+    print(setdatabase)
+
+
+connect('database.mmsql')
 execute('CREATE TABLE database (isim:Text soyadi:Text)')
+
+#print(getRows('deneme'))
+#print(getTypes('deneme'))
+#print(getTableCount('deneme'))
