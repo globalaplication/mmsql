@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
-
 def getTableCount(table):
     table = str(table)
     string = 'table:'+table
@@ -42,6 +41,5 @@ def execute(beta):
         if (frowtype is '('):
             rowtype = command[command.index(frowtype)+1:-1]
     print(rowtype, table)
-    
 print(connect('database.mmsql'))
 execute('CREATE TABLE database (isim:Text soyadi:Text)')
