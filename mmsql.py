@@ -2,27 +2,32 @@
 #!/usr/bin/env python3
 
 def execute(beta):
-    global table, newdatabase, database 
+    global table, database 
     command = beta.replace('(', ' ( ').replace(')', ' ) ')
     command = command.split()
     if (command[0:2] == ['CREATE', 'TABLE']):
         table = command[2]
         string, strnewrows, strnewtype  = ('table:'+table, '', '')
-        for frowtype in command:
-            if (frowtype is '('):
-                newrowtype = command[command.index(frowtype)+1:-1]
-        for fnewrows in newrowtype[0].split(':'):
-            strnewrows = strnewrows + fnewrows + ' '
-        for fnewtypes in newrowtype[1].split(':'):
-            strnewtype = strnewtype + fnewtypes + ' '
-        createnewrows = string+':rows:'+ strnewrows+'\n'
-        createnewtypes = string+':types:'+strnewtype+'\n'+string+':count:0'+'\n'+database
-        newdatabase = createnewrows+createnewtypes 
-        database = newdatabase
-        update()
+        if database.find(string+':') is -1:
+            for frowtype in command:
+                if (frowtype is '('):
+                    newrowtype = command[command.index(frowtype)+1:-1]
+            for fnewrows in newrowtype[0].split(':'):
+                strnewrows = strnewrows + fnewrows + ' '
+            for fnewtypes in newrowtype[1].split(':'):
+                strnewtype = strnewtype + fnewtypes + ' '
+            createnewrows = string+':rows:'+ strnewrows+'\n'
+            createnewtypes = string+':types:'+strnewtype+'\n'+string+':count:0'+'\n'+database
+            database = createnewrows+createnewtypes 
+            update()
+        else:
+            print('tablo kayıtlı')
 def update():
     db = open(n, 'w')
-    db.write(database)
+    if len(database) is not 0:
+        db.write(database)
+    else:
+    	db.write('table:mmsql:rows:id\n'+'table:mmsql:types:ID\n'+'table:mmsql:count:0\n'+'end:info:table')
     db.close()
 def getTableCount(table):
     table = str(table)
@@ -47,6 +52,7 @@ def connect(beta):
     global getTableInfo
     global database, n
     n = beta
+    database = ''
     if os.path.lexists(beta) is True:
         file = open(beta)
         database = file.read()
@@ -54,6 +60,7 @@ def connect(beta):
         getTableInfo = database.split('\n')[0:database.split('\n').index('end:info:table')]
         return database
     else:
+        update()
     	return -1
 
 connect('database.mmsql')
