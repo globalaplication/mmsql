@@ -16,18 +16,18 @@ def execute(beta):
                 strnewrows = strnewrows + fnewrows + ' '
             for fnewtypes in newrowtype[1].split(':'):
                 strnewtype = strnewtype + fnewtypes + ' '
+
             createnewrows = string+':rows:'+ strnewrows+'\n'
             createnewtypes = string+':types:'+strnewtype+'\n'+string+':count:0'+'\n'+database
-            database = createnewrows+createnewtypes 
+
+            database = createnewrows+createnewtypes
+                
             update()
         else:
             print('tablo kayıtlı')
 def update():
     db = open(n, 'w')
-    if len(database) is not 0:
-        db.write(database)
-    else:
-    	db.write('table:mmsql:rows:id\n'+'table:mmsql:types:ID\n'+'table:mmsql:count:0\n'+'end:info:table')
+    db.write(database)
     db.close()
 def getTableCount(table):
     table = str(table)
@@ -52,13 +52,14 @@ def connect(beta):
     global getTableInfo
     global database, n
     n = beta
-    database = ''
     if os.path.lexists(beta) is True:
         file = open(beta)
         database = file.read()
         file.close()
-        getTableInfo = database.split('\n')[0:database.split('\n').index('end:info:table')]
-        return database
+        if len(database) is not 0:
+            getTableInfo = database.split('\n')[0:database.split('\n').index('end:info:table')]
+        else:
+            database = 'table:mmsql:rows:id\n'+'table:mmsql:types:ID\n'+'table:mmsql:count:0\n'+'end:info:table'
     else:
         update()
     	return -1
