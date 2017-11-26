@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
-
 def execute(beta):
     global table, database 
     command = beta.replace('(', ' ( ').replace(')', ' ) ')
@@ -16,12 +15,9 @@ def execute(beta):
                 strnewrows = strnewrows + fnewrows + ' '
             for fnewtypes in newrowtype[1].split(':'):
                 strnewtype = strnewtype + fnewtypes + ' '
-
             createnewrows = string+':rows:'+ strnewrows+'\n'
             createnewtypes = string+':types:'+strnewtype+'\n'+string+':count:0'+'\n'+database
-
             database = createnewrows+createnewtypes
-                
             update()
         else:
             print('tablo kayıtlı')
@@ -58,11 +54,9 @@ def connect(beta):
         file.close()
         if len(database) is not 0:
             getTableInfo = database.split('\n')[0:database.split('\n').index('end:info:table')]
-        else:
-            database = 'table:mmsql:rows:id\n'+'table:mmsql:types:ID\n'+'table:mmsql:count:0\n'+'end:info:table'
     else:
-        update()
-    	return -1
+        getTableInfo = 0
+        database = 'table:mmsql:rows:id\n'+'table:mmsql:types:ID\n'+'table:mmsql:count:0\n'+'end:info:table'
 
 connect('database.mmsql')
 execute('CREATE TABLE database (isim:Text soyadi:Text)')
