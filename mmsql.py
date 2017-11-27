@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
-def execute(beta):
+
+def execute(beta, *VALUES):
     global table, database 
-    command = beta.replace('(', ' ( ').replace(')', ' ) ')
+    command = beta.replace('(', ' ( ').replace(')', ' ) ').replace('ROWS',' ROWS ').replace(',', '  ')
     command = command.split()
     if (command[0:2] == ['CREATE', 'TABLE']):
         table = command[2]
@@ -15,12 +16,34 @@ def execute(beta):
                 strnewrows = strnewrows + fnewrows + ' '
             for fnewtypes in newrowtype[1].split(':'):
                 strnewtype = strnewtype + fnewtypes + ' '
+            if len(database) is 0:
+                end = 'end:info:table'
+            else: 
+                end = ''
             createnewrows = string+':rows:'+ strnewrows+'\n'
             createnewtypes = string+':types:'+strnewtype+'\n'+string+':count:0'+'\n'+database
-            database = createnewrows+createnewtypes
+            database = createnewrows+createnewtypes+end
             update()
         else:
             print('tablo kayıtlı')
+    if (command[0:2] == ['INSERT', 'INTO']):
+        table = command[2]
+        database_get_count = getTableCount(table)
+        array_table_rows = []
+        for f_table_rows in command[command.index('ROWS')+1:]:
+            if (f_table_rows == '(' or f_table_rows == ')'):
+                continue
+            array_table_rows.append(f_table_rows)
+        for for_update in array_table_rows:
+            if len(array_table_rows) is len(VALUES):
+                database = database + '\n' + 'table:mmsql:' +for_update + ':' + str(database_get_count+1) +'\n'+ VALUES[array_table_rows.index(for_update)] + '\nend'
+            else:
+                print('hatali kullanim')
+                break
+        if len(array_table_rows) is len(VALUES):
+            database = database.replace('table:'+table+':count:' + str(database_get_count), 'table:'+table+':count:' + str(database_get_count+1))
+            update()
+        
 def update():
     db = open(n, 'w')
     db.write(database)
@@ -48,18 +71,18 @@ def connect(beta):
     global getTableInfo
     global database, n
     n = beta
+    database = ''
     if os.path.lexists(beta) is True:
         file = open(beta)
         database = file.read()
         file.close()
-        if len(database) is not 0:
-            getTableInfo = database.split('\n')[0:database.split('\n').index('end:info:table')]
-    else:
-        getTableInfo = 0
-        database = 'table:mmsql:rows:id\n'+'table:mmsql:types:ID\n'+'table:mmsql:count:0\n'+'end:info:table'
+    if len(database) is not 0:
+       getTableInfo = database.split('\n')[0:database.split('\n').index('end:info:table')]
 
 connect('database.mmsql')
-execute('CREATE TABLE database (isim:Text soyadi:Text)')
+#execute('CREATE TABLE database (isim:Text soyadi:Text)')
+execute('INSERT INTO database ROWS(isim,soyadi)', 'python', 'soyadi')
+
 
 #print(getRows('deneme'))
 #print(getTypes('deneme'))
