@@ -23,10 +23,9 @@ def execute(beta, *VALUES):
             for frowstypes in command:
                 if (frowstypes is '('):
                     newrowstypes = command[command.index(frowstypes)+1:-1]
-            for fnewrows in newrowstypes[0].split(':'):
-                strnewrows = strnewrows + fnewrows + ' '
-            for fnewtypes in newrowstypes[1].split(':'):
-                strnewtypes = strnewtypes + fnewtypes + ' '
+            for index in range(0, len(newrowstypes)):
+                strnewrows = strnewrows + newrowstypes[index].split(':')[0] + ' '
+                strnewtypes = strnewtypes + newrowstypes[index].split(':')[1] + ' '
             if len(database) is 0:
                 end = 'end:info:table'
             elif len(database) > 0:
@@ -49,7 +48,7 @@ def execute(beta, *VALUES):
             if (f_table_rows == 'NOT'): 
                 break
             array_table_rows.append(f_table_rows)
-            
+
         print(array_table_rows)
 
         for for_update in array_table_rows:
@@ -62,55 +61,29 @@ def execute(beta, *VALUES):
             database = database.replace('table:'+table+':count:'+str(database_get_count),'table:'+table+':count:'+str(database_get_count+1))
             update()
 
-
 def update():
     global n
     db = open(n, 'w')
     db.write(database)
     db.close()
-
 def TableGetCount(table):
-    
     global getAllTable
-
-    table = str(table)
-
-    string = ('table:'+table)
-
+    string =  ('table:'+str(table))
     count = [count for count in getAllTable if count.startswith(string+':count:')]
-
     if len(count) is not 0:
-        
         return int(count[-1][len(string+':count:'):].split()[-1])
-
 def TableGetRows(table):
-
     global getAllTable
-
-    table = str(table)
-
-    string = ('table:'+table)
-
+    string = ('table:'+str(table))
     Rows = [Rows for Rows in getAllTable if Rows.startswith(string+':rows:')]
-
     if len(Rows) is not 0:
-
-        return str(Rows[-1][len(string+':rows:'):].split()) #-1:0
-
+        return Rows[-1][len(string+':rows:'):].split() #-1:0
 def TableGetTypes(table):
-
     global getAllTable
-
-    table = str(table)
-
-    string = ('table:'+table)
-
+    string = ('table:'+str(table))
     type = [type for type in getAllTable if type.startswith(string+':types:')]
-
     if len(type) is not 0:
-
         return str(type[-1][len(string+':types:'):].split())
-
 def connect(beta):
     global getAllTable, database, n
     database, n = ('', beta)
@@ -120,12 +93,21 @@ def connect(beta):
         file.close()
     if len(database) is not 0:
        getAllTable = database.split('\n')[0:database.split('\n').index('end:info:table')]
+def GetID(table, id):
+    table, id, gets = str(table), str(id), []
+    for test in TableGetRows(table):
+        start = 'table'+':'+table+':'+test+':'+id
+        start = database.find(start)+len(start)
+        end = database.find('\nend', start)
+        end = [database[start+1:end]]
+        gets.extend(end)
+    return gets
 
 connect('database.mmsql')
 execute('CREATE TABLE  mmsql (isim:Text soyadi:Text)')
 #print(getAllTable)
-execute('INSERT INTO database ROWS(isim,soyadi) NOT(isim)', 'python', 'soyadi')
-
+execute('INSERT INTO mmsql ROWS(isim,soyadi) NOT(isim)', 'python', 'soyadi')
+print(GetID('mmsql', 1))
 
 #print(getRows('deneme'))
 #print(getTypes('deneme'))
