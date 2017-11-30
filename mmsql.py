@@ -4,22 +4,17 @@
 import os
 
 def execute(beta, *VALUES):
-
     REpL = {'(':' ( ', ')':' ) ', 
         'ROWS':' ROWS ', 
         ',':'  '}
     for keys in REpL.keys():
         beta = beta.replace(keys, REpL[keys])
     command = beta.split()
-
-    global table, database
-
+    global table
+    global database
     if (command[0:2] == ['CREATE', 'TABLE']):
-
         table, string, strnewrows, strnewtypes  = (command[2], 'table:' + command[2], '', '')
-
         if database.find(string+':') is -1:
-
             for frowstypes in command:
                 if (frowstypes is '('):
                     newrowstypes = command[command.index(frowstypes)+1:-1]
@@ -37,30 +32,6 @@ def execute(beta, *VALUES):
             update()
         else:
             print(table, 'tablo kayitli')
-
-    if (command[0:2] == ['INSERT', 'INTO']):
-
-        database_get_count, table, array_table_rows = TableGetCount(command[2]), command[2], []
-
-        for f_table_rows in command[command.index('ROWS')+1:]:
-            if (f_table_rows == '(' or f_table_rows == ')'):
-                continue
-            if (f_table_rows == 'NOT'): 
-                break
-            array_table_rows.append(f_table_rows)
-
-        print(array_table_rows)
-
-        for for_update in array_table_rows:
-            if len(array_table_rows) is len(VALUES):
-                database = database + '\n' +'table:'+table+':'+for_update+':'+str(database_get_count+1)+'\n'+VALUES[array_table_rows.index(for_update)]+'\nend'
-            else:
-                print('hatali kullanim')
-                break
-        if len(array_table_rows) is len(VALUES):
-            database = database.replace('table:'+table+':count:'+str(database_get_count),'table:'+table+':count:'+str(database_get_count+1))
-            update()
-
 def update():
     global n
     db = open(n, 'w')
@@ -93,22 +64,22 @@ def connect(beta):
         file.close()
     if len(database) is not 0:
        getAllTable = database.split('\n')[0:database.split('\n').index('end:info:table')]
-def GetID(table, id):
+def GetColumn(table, id):
+    global database
     table, id, gets = str(table), str(id), []
     for test in TableGetRows(table):
-        start = 'table'+':'+table+':'+test+':'+id
-        start = database.find(start)+len(start)
-        end = database.find('\nend', start)
-        end = [database[start+1:end]]
-        gets.extend(end)
+        search = 'table'+':'+table+':'+test+':'+id+'\n'
+        start = database.find(search)
+        end = database.find('\nend', start+len(search))
+        output = [database[start+len(search):end]]
+        if start is not -1:
+            gets.extend(output)
     return gets
 
 connect('database.mmsql')
-execute('CREATE TABLE  mmsql (isim:Text soyadi:Text)')
+execute('CREATE TABLE  mmsql ( isim:Text soyadi:Text )')
 #print(getAllTable)
-execute('INSERT INTO mmsql ROWS(isim,soyadi) NOT(isim)', 'python', 'soyadi')
-print(GetID('mmsql', 1))
+execute('INSERT INTO mmsql ROWS(isim,soyadi)  ', 'python', 'programlama')
 
-#print(getRows('deneme'))
-#print(getTypes('deneme'))
-#print(TableGetCount('mmsql'))
+#print(GetColumn('mmsql', 1))
+
