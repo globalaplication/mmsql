@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python3
-
-import os
-
 def execute(beta, *VALUES):
     REpL = {'(':' ( ', ')':' ) ', 
         'ROWS':' ROWS ', 
@@ -10,10 +7,19 @@ def execute(beta, *VALUES):
     for keys in REpL.keys():
         beta = beta.replace(keys, REpL[keys])
     command = beta.split()
+    NOT = []
     global table
     global database
+    if 'NOT' in command:
+        if (command[command.index('NOT')+1] == '('):
+            IFNOT = [IFNOT for IFNOT in command[command.index('NOT')+1:] if IFNOT is not '(' if IFNOT is not ')']
+        NOT.extend(IFNOT)
+    if (command[0:2] == ['INSERT', 'INTO']):
+        table = command[2]
     if (command[0:2] == ['CREATE', 'TABLE']):
-        table, string, strnewrows, strnewtypes  = (command[2], 'table:' + command[2], '', '')
+        table = command[2]
+    if (command[0:2] == ['CREATE', 'TABLE']):
+        string, strnewrows, strnewtypes  = ('table:' + table, '', '')
         if database.find(string+':') is -1:
             for frowstypes in command:
                 if (frowstypes is '('):
@@ -55,6 +61,7 @@ def TableGetTypes(table):
     if len(type) is not 0:
         return str(type[-1][len(string+':types:'):].split())
 def connect(beta):
+    import os
     global getAllTable, database, n
     database, n = ('', beta)
     if os.path.lexists(beta) is True:
@@ -77,8 +84,8 @@ def GetColumn(table, id):
 
 connect('database.mmsql')
 execute('CREATE TABLE  mmsql ( isim:Text soyadi:Text )')
-#print(getAllTable)
-execute('INSERT INTO mmsql ROWS(isim,soyadi)  ', 'python', 'programlama')
-
+#execute('INSERT INTO mmsql ROWS (isim, soyadi)  NOT (isim)', 'python', 'programlama')
 #print(GetColumn('mmsql', 1))
-
+#print(getRows('deneme'))
+#print(getTypes('deneme'))
+#print(TableGetCount('mmsql'))
