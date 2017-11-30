@@ -27,7 +27,6 @@ def execute(beta, *VALUES):
                 end = ''
             createnewrows = string+':rows:'+ strnewrows+'\n'
             createnewtypes = string+':types:'+strnewtypes+'\n'+string+':count:0'+'\n'+database
-
             database = createnewrows + createnewtypes + end
             update()
         else:
