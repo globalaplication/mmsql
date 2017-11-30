@@ -7,13 +7,23 @@ def execute(beta, *VALUES):
     for keys in REpL.keys():
         beta = beta.replace(keys, REpL[keys])
     command = beta.split()
-    NOT = []
+    NOT, PNOT, ROWS, PROWS = [], [], [], []
     global table
     global database
     if 'NOT' in command:
         if (command[command.index('NOT')+1] == '('):
-            IFNOT = [IFNOT for IFNOT in command[command.index('NOT')+1:] if IFNOT is not '(' if IFNOT is not ')']
-        NOT.extend(IFNOT)
+            for FNOT in command[command.index('NOT')+1:]:
+                if FNOT is '(': continue
+                if FNOT is ')': break
+                PNOT.append(FNOT)
+            NOT.extend(PNOT)
+    if 'ROWS' in command:
+        if (command[command.index('ROWS')+1] == '('):
+            for FROWS in command[command.index('ROWS')+1:]:
+                if FROWS is '(': continue
+                if FROWS is ')': break
+                PROWS.append(FROWS)
+            ROWS.extend(PROWS)
     if (command[0:2] == ['INSERT', 'INTO']):
         table = command[2]
     if (command[0:2] == ['CREATE', 'TABLE']):
@@ -37,6 +47,9 @@ def execute(beta, *VALUES):
             update()
         else:
             print(table, 'tablo kayitli')
+
+    #print(NOT, ROWS)
+
 def update():
     global n
     db = open(n, 'w')
@@ -82,10 +95,12 @@ def GetColumn(table, id):
             gets.extend(output)
     return gets
 
+
 connect('database.mmsql')
 execute('CREATE TABLE  mmsql ( isim:Text soyadi:Text )')
-#execute('INSERT INTO mmsql ROWS (isim, soyadi)  NOT (isim)', 'python', 'programlama')
+execute('INSERT INTO mmsql ROWS (isim, soyadi)  NOT (isim) ALO', 'python', 'programlama')
 #print(GetColumn('mmsql', 1))
+
 #print(getRows('deneme'))
 #print(getTypes('deneme'))
 #print(TableGetCount('mmsql'))
