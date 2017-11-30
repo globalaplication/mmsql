@@ -47,9 +47,17 @@ def execute(beta, *VALUES):
             update()
         else:
             print(table, 'tablo kayitli')
-
-    #print(NOT, ROWS)
-
+    if (command[0:2] == ['INSERT', 'INTO']):
+        DatabaseGetCount = TableGetCount(table)
+        for insert in ROWS:
+            if len(ROWS) is len(VALUES):
+                database = database + '\n' + 'table:mmsql:' + insert + ':' + str(DatabaseGetCount+1) +'\n'+ VALUES[ROWS.index(insert)] + '\nend'
+            else:
+                print('hatalı kullanım')
+                break
+        if len(ROWS) is len(VALUES):
+            database = database.replace('table:'+table+':count:' + str(DatabaseGetCount), 'table:'+table+':count:' + str(DatabaseGetCount+1))
+            update()
 def update():
     global n
     db = open(n, 'w')
@@ -95,12 +103,7 @@ def GetColumn(table, id):
             gets.extend(output)
     return gets
 
-
 connect('database.mmsql')
 execute('CREATE TABLE  mmsql ( isim:Text soyadi:Text )')
-execute('INSERT INTO mmsql ROWS (isim, soyadi)  NOT (isim) ALO', 'python', 'programlama')
+execute('INSERT INTO mmsql ROWS (isim, soyadi) ', 'python', 'programlama')
 #print(GetColumn('mmsql', 1))
-
-#print(getRows('deneme'))
-#print(getTypes('deneme'))
-#print(TableGetCount('mmsql'))
