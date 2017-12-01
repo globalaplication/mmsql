@@ -74,10 +74,11 @@ def execute(beta, *VALUES):
                 print('hatali kullanim', NOT, ROWS)
             else:
                 for id in range(1, TableGetCount(table)+1):
-                    if len(NOT) > 0 and VALUES[ROWS.index(NOT[0])] in GetColumn(table, id)[1:][ROWS.index(NOT[0])]: #(id pop 1:)
+                    if len(NOT) > 0 and VALUES[ROWS.index(NOT[0])] in GetColumn(table, id)[1:][ROWS.index(NOT[0])]:
                         TFNOT.append(1)
         if (len(TFNOT) is 0):
-            update()
+            #update()
+            pass
         else:
             print('kayitli!')
     if (command[0:3] == ['SELECT', '*', 'FROM']):
@@ -87,13 +88,13 @@ def execute(beta, *VALUES):
         if len(VALUES) is 0:
             start, end = 1, TableGetCount(table)
         if len(SORT) is 0:
-            select = [GetColumn(table, select) for select in range(start, end+1) if select < tgcount+1]
-            return select
-        elif SORT[0] == 'AZ':
-            select = [GetColumn(table, select) for select in range(start, end+1) if select < tgcount+1]
+            select = [GetColumn(table, select) for select in range(start, end+1) if (select < tgcount+1)]
             return select
         elif SORT[0] == 'ZA':
-            select = [GetColumn(table, select) for select in range(end, start-1, -1) if select <= tgcount]
+            select = [GetColumn(table, select) for select in range(end, start-1, -1) if (select <= tgcount)]
+            return select
+        elif SORT[0] == 'AZ':
+            select = [GetColumn(table, select) for select in range(start, end+1) if (select < tgcount+1)]
             return select
 def update():
     global n
@@ -156,7 +157,8 @@ def GetColumn(table, id):
     return gets
 connect('database.mmsql')
 execute('CREATE TABLE  mmsql ( isim:Text soyadi:Text )')
-execute('INSERT INTO mmsql ROWS ( isim, soyadi ) NOT (isim)',  'python3', 'programlama')
+execute('INSERT INTO mmsql ROWS ( isim, soyadi ) NOT (isim)',  'python5', 'programlama')
+update()
 print(execute('SELECT * FROM mmsql SORT (ZA)', 1, 50))
 #DELETE_ID_('mmsql', 1)
 #print(GetColumn('mmsql', 1))
