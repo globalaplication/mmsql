@@ -149,10 +149,11 @@ def GetColumn(table, id):
             gets.extend(output)
         if start is not -1 and database.find(table+':'+'id'+':'+id+':hide') is not -1: 
             gets.extend(['Null'])
+    gets.insert(0, id)
     return gets
 connect('database.mmsql')
 execute('CREATE TABLE  mmsql ( isim:Text soyadi:Text )')
 execute('INSERT INTO mmsql ROWS (isim, soyadi) NOT (isim)', 'python', 'programlama')
-print(execute('SELECT * FROM mmsql SORT (AZ)'))
+print(execute('SELECT * FROM mmsql SORT (ZA)'))
 DELETE_ID_('mmsql', 1)
 #print(GetColumn('mmsql', 2))
