@@ -74,11 +74,10 @@ def execute(beta, *VALUES):
                 print('hatali kullanim', NOT, ROWS)
             else:
                 for id in range(1, TableGetCount(table)+1):
-                    if len(NOT) > 0 and VALUES[ROWS.index(NOT[0])] in GetColumn(table, id)[1:][ROWS.index(NOT[0])]:
+                    if len(NOT) > 0 and VALUES[ROWS.index(NOT[0])] == GetColumn(table, id)[1:][ROWS.index(NOT[0])]:
                         TFNOT.append(1)
         if (len(TFNOT) is 0):
-            #update()
-            pass
+            update()
         else:
             print('kayitli!')
     if (command[0:3] == ['SELECT', '*', 'FROM']):
@@ -157,8 +156,9 @@ def GetColumn(table, id):
     return gets
 connect('database.mmsql')
 execute('CREATE TABLE  mmsql ( isim:Text soyadi:Text )')
-execute('INSERT INTO mmsql ROWS ( isim, soyadi ) NOT (isim)',  'python5', 'programlama')
-update()
-print(execute('SELECT * FROM mmsql SORT (ZA)', 1, 50))
+execute('INSERT INTO mmsql ROWS ( isim, soyadi ) NOT (isim)',  'python', 'programlama')
+#update()
+for test in execute('SELECT * FROM mmsql SORT (ZA)', 1, 50):
+    print(test)
 #DELETE_ID_('mmsql', 1)
 #print(GetColumn('mmsql', 1))
