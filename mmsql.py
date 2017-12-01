@@ -74,27 +74,26 @@ def execute(beta, *VALUES):
                 print('hatali kullanim', NOT, ROWS)
             else:
                 for id in range(1, TableGetCount(table)+1):
-                    if len(NOT) > 0 and VALUES[ROWS.index(NOT[0])] in GetColumn(table, id)[ROWS.index(NOT[0])]:
+                    if len(NOT) > 0 and VALUES[ROWS.index(NOT[0])] in GetColumn(table, id)[1:][ROWS.index(NOT[0])]: #(id pop 1:)
                         TFNOT.append(1)
         if (len(TFNOT) is 0):
-            #database = database + '\n' + start1 +'\n'+ end1
             update()
         else:
             print('kayitli!')
     if (command[0:3] == ['SELECT', '*', 'FROM']):
         connect(n)
         if len(VALUES) is not 0:
-            start, end = VALUES[0], VALUES[1]
+            start, end, tgcount = VALUES[0], VALUES[1], TableGetCount(table)
         if len(VALUES) is 0:
             start, end = 1, TableGetCount(table)
         if len(SORT) is 0:
-            select = [GetColumn(table, select) for select in range(start, end+1)]
+            select = [GetColumn(table, select) for select in range(start, end+1) if select < tgcount+1]
             return select
         elif SORT[0] == 'AZ':
-            select = [GetColumn(table, select) for select in range(start, end+1)]
+            select = [GetColumn(table, select) for select in range(start, end+1) if select < tgcount+1]
             return select
         elif SORT[0] == 'ZA':
-            select = [GetColumn(table, select) for select in range(end, start-1, -1)]
+            select = [GetColumn(table, select) for select in range(end, start-1, -1) if select <= tgcount]
             return select
 def update():
     global n
@@ -153,11 +152,11 @@ def GetColumn(table, id):
             gets.extend(output)
         if start is not -1 and database.find(table+':'+'id'+':'+id+':hide') is not -1: 
             gets.extend(['Null'])
-    #gets.insert(0, str(id))
+    gets.insert(0, int(id))
     return gets
 connect('database.mmsql')
 execute('CREATE TABLE  mmsql ( isim:Text soyadi:Text )')
-execute('INSERT INTO mmsql ROWS ( isim, soyadi ) NOT (isim)',  'python', 'programlama')
-print(execute('SELECT * FROM mmsql SORT (ZA)', 1, 10))
+execute('INSERT INTO mmsql ROWS ( isim, soyadi ) NOT (isim)',  'python3', 'programlama')
+print(execute('SELECT * FROM mmsql SORT (ZA)', 1, 50))
 #DELETE_ID_('mmsql', 1)
 #print(GetColumn('mmsql', 1))
