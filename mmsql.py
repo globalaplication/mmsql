@@ -58,27 +58,25 @@ def execute(beta, *VALUES):
             print(table, 'tablo kayitli')
     if (command[0:2] == ['INSERT', 'INTO']):
         DatabaseGetCount = TableGetCount(table)
-        for insert in ROWS:
-            if len(ROWS) is len(VALUES):
-                start1  = 'table:' + table + ':' + insert + ':' + str(DatabaseGetCount+1)
-                end1 = VALUES[ROWS.index(insert)] + '\nend'
-                database = database + '\n' + start1 +'\n'+ end1
-            else:
-                print('hatali kullanim')
-                break
         if len(ROWS) is len(VALUES):
-            start = 'table:' + table +':count:' + str(DatabaseGetCount)
-            end = 'table:' + table +':count:' + str(DatabaseGetCount+1)
-            database = database.replace(start, end)
             if len(NOT) > 0 and NOT[0] not in ROWS:
                 print('hatali kullanim', NOT, ROWS)
             else:
                 for id in range(1, TableGetCount(table)+1):
                     if len(NOT) > 0 and VALUES[ROWS.index(NOT[0])] == GetColumn(table, id)[1:][ROWS.index(NOT[0])]:
                         TFNOT.append(1)
-        if (len(TFNOT) is 0):
-            update()
-        else:
+        for insert in ROWS:
+            if len(ROWS) is len(VALUES) and len(TFNOT) is 0:
+                start = 'table:' + table +':count:' + str(DatabaseGetCount)
+                end = 'table:' + table +':count:' + str(DatabaseGetCount+1)
+                start1  = 'table:' + table + ':' + insert + ':' + str(DatabaseGetCount+1)
+                end1 = VALUES[ROWS.index(insert)] + '\nend'
+                database = database + '\n' + start1 +'\n'+ end1
+                database = database.replace(start, end)
+            elif len(ROWS) is not len(VALUES):
+                print('hatali kullanim')
+                break
+        if (len(TFNOT) is not 0):
             print('kayitli!')
     if (command[0:3] == ['SELECT', '*', 'FROM']):
         connect(n)
@@ -156,8 +154,8 @@ def GetColumn(table, id):
     return gets
 connect('database.mmsql')
 execute('CREATE TABLE  mmsql ( isim:Text soyadi:Text )')
-execute('INSERT INTO mmsql ROWS ( isim, soyadi ) NOT (isim)',  'python', 'programlama')
-#update()
+execute('INSERT INTO mmsql ROWS ( isim, soyadi ) NOT (isim)',  'pythonn0', 'programlama')
+update()
 for test in execute('SELECT * FROM mmsql SORT (ZA)', 1, 50):
     print(test)
 #DELETE_ID_('mmsql', 1)
