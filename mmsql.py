@@ -3,11 +3,11 @@
 def execute(beta, *VALUES):
     REpL = {'(':' ( ', ')':' ) ', 
         'ROWS':' ROWS ', 
-        ',':'  '}
+        ',':'  ', '*':' * '}
     for keys in REpL.keys():
         beta = beta.replace(keys, REpL[keys])
     command = beta.split()
-    NOT, PNOT, ROWS, PROWS = [], [], [], []
+    NOT, PNOT, TFNOT, ROWS, PROWS, SORT, PSORT = [], [], [], [], [], [], []
     global table
     global database
     if 'NOT' in command:
@@ -24,8 +24,17 @@ def execute(beta, *VALUES):
                 if FROWS is ')': break
                 PROWS.append(FROWS)
             ROWS.extend(PROWS)
+    if 'SORT' in command:
+        if (command[command.index('SORT')+1] == '('):
+            for FSORT in command[command.index('SORT')+1:]:
+                if FSORT is '(': continue
+                if FSORT is ')': break
+                PSORT.append(FSORT)
+            SORT.extend(PSORT)
     if (command[0:2] == ['INSERT', 'INTO']):
         table = command[2]
+    if (command[0:3] == ['SELECT', '*', 'FROM']):
+        table = command[3]
     if (command[0:2] == ['CREATE', 'TABLE']):
         table = command[2]
     if (command[0:2] == ['CREATE', 'TABLE']):
@@ -43,7 +52,7 @@ def execute(beta, *VALUES):
                 end = ''
             createnewrows = string+':rows:'+ strnewrows+'\n'
             createnewtypes = string+':types:'+strnewtypes+'\n'+string+':count:0'+'\n'+database
-            database = createnewrows + createnewtypes + end
+            database = createnewrows + createnewtypes + end 
             update()
         else:
             print(table, 'tablo kayitli')
@@ -51,13 +60,40 @@ def execute(beta, *VALUES):
         DatabaseGetCount = TableGetCount(table)
         for insert in ROWS:
             if len(ROWS) is len(VALUES):
-                database = database + '\n' + 'table:mmsql:' + insert + ':' + str(DatabaseGetCount+1) +'\n'+ VALUES[ROWS.index(insert)] + '\nend'
+                start  = 'table:' + table + ':' + insert + ':' + str(DatabaseGetCount+1)
+                end = VALUES[ROWS.index(insert)] + '\nend'
+                database = database + '\n' + start +'\n'+ end
             else:
                 print('hatalı kullanım')
                 break
         if len(ROWS) is len(VALUES):
-            database = database.replace('table:'+table+':count:' + str(DatabaseGetCount), 'table:'+table+':count:' + str(DatabaseGetCount+1))
+            start = 'table:' + table +':count:' + str(DatabaseGetCount)
+            end = 'table:' + table +':count:' + str(DatabaseGetCount+1)
+            database = database.replace(start, end)
+            if len(NOT) > 0 and NOT[0] not in ROWS:
+                print('hatalı kullanım', NOT, ROWS)
+            else:
+                for id in range(1, TableGetCount(table)+1):
+                    if len(NOT) > 0 and VALUES[ROWS.index(NOT[0])] in GetColumn(table, id)[ROWS.index(NOT[0])]:
+                        TFNOT.append(1)
+        if (len(TFNOT) is 0):
             update()
+        else:
+            print('daha eskiden kaydedilmis data')
+    if (command[0:3] == ['SELECT', '*', 'FROM']):
+        if len(VALUES) is not 0:
+            start, end = VALUES[0], VALUES[1]
+        if len(VALUES) is 0:
+            start, end = 1, TableGetCount(table)
+        if len(SORT) is 0:
+            select = [GetColumn(table, select) for select in range(start, end+1)]
+            return select
+        elif SORT[0] == 'AZ':
+            select = [GetColumn(table, select) for select in range(start, end+1)]
+            return select
+        elif SORT[0] == 'ZA':
+            select = [GetColumn(table, select) for select in range(end, start-1, -1)]
+            return select
 def update():
     global n
     db = open(n, 'w')
@@ -74,18 +110,27 @@ def TableGetRows(table):
     string = ('table:'+str(table))
     Rows = [Rows for Rows in getAllTable if Rows.startswith(string+':rows:')]
     if len(Rows) is not 0:
-        return Rows[-1][len(string+':rows:'):].split() #-1:0
+        return Rows[-1][len(string+':rows:'):].split()
 def TableGetTypes(table):
     global getAllTable
     string = ('table:'+str(table))
     type = [type for type in getAllTable if type.startswith(string+':types:')]
     if len(type) is not 0:
         return str(type[-1][len(string+':types:'):].split())
+def DELETE_ID_(table, id):
+    global database
+    id, table = str(id), str(table)
+    if database.find(table+':'+'id'+':'+id+':hide') is -1:
+        database = database + '\n' + table+':'+'id'+':'+id+':hide'
+        update()
 def connect(beta):
     import os
     global getAllTable, database, n
     database, n = ('', beta)
-    if os.path.lexists(beta) is True:
+    if os.path.lexists(beta) is False:
+        with open(beta, 'w') as test:
+            test.write('table:beta:rows:test\ntable:beta:types:Text\ntable:beta:count:0\nend:info:table')
+    else:
         file = open(beta)
         database = file.read()
         file.close()
@@ -95,15 +140,19 @@ def GetColumn(table, id):
     global database
     table, id, gets = str(table), str(id), []
     for test in TableGetRows(table):
+        output = []
         search = 'table'+':'+table+':'+test+':'+id+'\n'
         start = database.find(search)
         end = database.find('\nend', start+len(search))
         output = [database[start+len(search):end]]
-        if start is not -1:
+        if start is not -1 and database.find(table+':'+'id'+':'+id+':hide') is -1: 
             gets.extend(output)
+        if start is not -1 and database.find(table+':'+'id'+':'+id+':hide') is not -1: 
+            gets.extend(['Null'])
     return gets
-
 connect('database.mmsql')
 execute('CREATE TABLE  mmsql ( isim:Text soyadi:Text )')
-execute('INSERT INTO mmsql ROWS (isim, soyadi) ', 'python', 'programlama')
-#print(GetColumn('mmsql', 1))
+execute('INSERT INTO mmsql ROWS (isim, soyadi) NOT (isim)', 'python', 'programlama')
+print(execute('SELECT * FROM mmsql SORT (AZ)'))
+DELETE_ID_('mmsql', 1)
+#print(GetColumn('mmsql', 2))
